@@ -672,7 +672,7 @@ func Benchmark_Set(b *testing.B) {
 				Set(data, path, "1")
 			case "widget.image.hOffset":
 				Set(data, path, 1)
-			case "widget.texb.onMouseUp":
+			case "widget.text.onMouseUp":
 				Set(data, path, "1")
 			}
 		}

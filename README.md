@@ -52,12 +52,12 @@ json := mjson.Set(`{"friends":["Andy","Carol"]}`, "friends.2", "Sara")
 `mjson` runs a teeny bit faster than SJSON:
 
 ```
-Benchmark_Set-4                   	 3000000	       403 ns/op	     397 B/op	       2 allocs/op
-Benchmark_SetInPlace-4            	 3000000	       504 ns/op	      21 B/op	       2 allocs/op
-Benchmark_SetRawInPlace-4         	 3000000	       401 ns/op	       0 B/op	       0 allocs/op
-Benchmark_SJSON-4                 	 3000000	       734 ns/op	     576 B/op	       2 allocs/op
-Benchmark_SJSON_SetInPlace-4      	 3000000	       588 ns/op	      74 B/op	       1 allocs/op
-Benchmark_SJSON_SetRawInPlace-4   	 3000000	       452 ns/op	       0 B/op	       0 allocs/op
+Benchmark_Set-4                   	 3000000	       556 ns/op	     405 B/op	       2 allocs/op
+Benchmark_SetInPlace-4            	 3000000	       448 ns/op	      21 B/op	       2 allocs/op
+Benchmark_SetRawInPlace-4         	 3000000	       346 ns/op	       0 B/op	       0 allocs/op
+Benchmark_SJSON_Set-4             	 3000000	       694 ns/op	     576 B/op	       2 allocs/op
+Benchmark_SJSON_SetInPlace-4      	 3000000	       564 ns/op	      74 B/op	       1 allocs/op
+Benchmark_SJSON_SetRawInPlace-4   	 3000000	       426 ns/op	       0 B/op	       0 allocs/op
 ```
 
 You should use whichever API you prefer, though.

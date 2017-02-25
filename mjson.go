@@ -239,9 +239,17 @@ func locateAccessor(json []byte, acc string) int {
 }
 
 func parseString(json []byte) ([]byte, []byte) {
-	after := consumeString(json)
-	strLen := len(json) - len(after) - 2
-	return json[1 : 1+strLen], after
+	skip := true
+	for i, c := range json {
+		if c == '"' && !skip {
+			return json[1:i], json[i+1:]
+		}
+		skip = false
+		if c == '\\' {
+			skip = true
+		}
+	}
+	return json, json[len(json):]
 }
 
 func consumeWhitespace(json []byte) []byte {
@@ -265,7 +273,12 @@ func prevChar(json []byte, i int) byte {
 
 func consumeSeparator(json []byte) []byte {
 	json = json[1:] // consume one of [ { } ] : ,
-	return consumeWhitespace(json)
+	for i := range json {
+		if c := json[i]; c > ' ' || (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+			return json[i:]
+		}
+	}
+	return json[len(json):]
 }
 
 func consumeValue(json []byte) []byte {
@@ -288,13 +301,20 @@ func consumeValue(json []byte) []byte {
 
 func consumeObject(json []byte) []byte {
 	json = json[1:] // consume {
-	// seek to next {, }, or ". Each time we encounter a {, increment n. Each
-	// time encounter a }, decrement n. Exit when n == 0. If we encounter ",
-	// consume the string.
 	n := 1
 	for n > 0 {
-		json = json[indexObject(json):]
-		switch json[0] {
+		// seek to next {, }, or ". Each time we encounter a {, increment n. Each
+		// time encounter a }, decrement n. Exit when n == 0. If we encounter ",
+		// consume the string.
+		var c byte
+		for i := range json {
+			if c = json[i]; c == '{' || c == '}' || c == '"' {
+				json = json[i:]
+				break
+			}
+		}
+
+		switch c {
 		case '{':
 			n++
 			json = json[1:] // consume {
@@ -302,39 +322,39 @@ func consumeObject(json []byte) []byte {
 			n--
 			json = json[1:] // consume }
 		case '"':
-			json = consumeString(json)
+			// consume string
+			skip := true
+			for i, c := range json {
+				if c == '"' && !skip {
+					json = json[i+1:]
+					break
+				}
+				skip = false
+				if c == '\\' {
+					skip = true
+				}
+			}
 		}
 	}
 	return json
 }
 
-func indexObject(json []byte) int {
-	for i, c := range json {
-		if c == '{' || c == '}' || c == '"' {
-			return i
-		}
-	}
-	return -1
-}
-
-func indexArray(json []byte) int {
-	for i, c := range json {
-		if c == '[' || c == ']' || c == '"' {
-			return i
-		}
-	}
-	return -1
-}
-
 func consumeArray(json []byte) []byte {
 	json = json[1:] // consume [
-	// seek to next [, ], or ". Each time we encounter a [, increment n. Each
-	// time encounter a ], decrement n. Exit when n == 0. If we encounter ",
-	// consume the string.
 	n := 1
 	for n > 0 {
-		json = json[indexArray(json):]
-		switch json[0] {
+		// seek to next [, ], or ". Each time we encounter a [, increment n. Each
+		// time encounter a ], decrement n. Exit when n == 0. If we encounter ",
+		// consume the string.
+		var c byte
+		for i := range json {
+			if c = json[i]; c == '[' || c == ']' || c == '"' {
+				json = json[i:]
+				break
+			}
+		}
+
+		switch c {
 		case '[':
 			n++
 			json = json[1:] // consume [
@@ -342,19 +362,32 @@ func consumeArray(json []byte) []byte {
 			n--
 			json = json[1:] // consume ]
 		case '"':
-			json = consumeString(json)
+			// consume string
+			skip := true
+			for i, c := range json {
+				if c == '"' && !skip {
+					json = json[i+1:]
+					break
+				}
+				skip = false
+				if c == '\\' {
+					skip = true
+				}
+			}
 		}
 	}
 	return json
 }
 
 func consumeString(json []byte) []byte {
-	for i := 1; i < len(json); i++ {
-		if json[i] == '"' {
+	skip := true
+	for i, c := range json {
+		if c == '"' && !skip {
 			return json[i+1:]
 		}
-		if json[i] == '\\' {
-			i++
+		skip = false
+		if c == '\\' {
+			skip = true
 		}
 	}
 	return json
