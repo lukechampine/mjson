@@ -60,4 +60,11 @@ Benchmark_SJSON_SetInPlace-4      	 3000000	       564 ns/op	      74 B/op	     
 Benchmark_SJSON_SetRawInPlace-4   	 3000000	       426 ns/op	       0 B/op	       0 allocs/op
 ```
 
+However, to get this speed with SJSON you must set the `Optimistic` flag.
+Otherwise its performance drops considerably:
+
+```
+Benchmark_SJSON_SetNoFlag-4        	 3000000	      1861 ns/op	    1178 B/op	       5 allocs/op
+```
+
 You should use whichever API you prefer, though.

@@ -785,3 +785,22 @@ func Benchmark_SJSON_SetRawInPlace(b *testing.B) {
 	}
 	b.N *= len(benchPaths)
 }
+
+func Benchmark_SJSON_SetNoFlag(b *testing.B) {
+	data := []byte(benchJSON)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, path := range benchPaths {
+			switch path {
+			case "widget.window.name":
+				sjson.SetBytes(data, path, "1")
+			case "widget.image.hOffset":
+				sjson.SetBytes(data, path, 1)
+			case "widget.text.onMouseUp":
+				sjson.SetBytes(data, path, "1")
+			}
+		}
+	}
+	b.N *= len(benchPaths)
+}
